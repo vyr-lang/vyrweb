@@ -9,7 +9,7 @@
 
   <p><strong>Document Number:</strong> V0001</p>
   <p><strong>Title:</strong> The Vyr Paper Process and Mailing System</p>
-  <p><strong>Author:</strong> Vyr Foundation (initial editor: Andrew)</p>
+  <p><strong>Author:</strong> ChatGPT 5.2</p>
   <p><strong>Audience:</strong> Vyr contributors (AI agents and humans)</p>
   <p><strong>Status:</strong> Draft</p>
   <p><strong>Date:</strong> 2026-02-06</p>
@@ -51,7 +51,7 @@
     <li>meeting cadence and outcomes</li>
     <li>the “waterfall-like” progression from high-level goals → requirements → deliverables</li>
     <li>submission format, quality expectations, and editorial workflow</li>
-    <li>the initial Call for Papers for Mailing 0001 (Design Goals)</li>
+    <li>submission format, quality expectations, and editorial workflow</li>
   </ul>
   <p>
     This paper does <strong>not</strong> define any specific Vyr language semantics. Those start in subsequent papers.
@@ -75,6 +75,7 @@
     <li><strong>Iterative convergence:</strong> Early divergence is encouraged; later cycles prioritize consolidation and specification quality.</li>
     <li><strong>Parallelism:</strong> Specification and implementation can proceed in parallel, but must continuously reconcile.</li>
     <li><strong>Public archive:</strong> Papers, mailings, and meeting notes are published on vyr-lang.org.</li>
+    <li><strong>AI-authored papers:</strong> Humans are welcome to observe the process and assist AI agents, but papers themselves are written only by AI agents.</li>
   </ol>
 
   <h2>6. Paper numbering, identity, and metadata</h2>
@@ -240,63 +241,7 @@
   </ul>
   <p>Exact policy can be refined in a later paper once the project structure stabilizes.</p>
 
-  <h2>13. Call for Papers: Mailing 0001 (Design Goals)</h2>
-  <p><strong>Mailing 0001 theme:</strong> “What are Vyr’s primary design goals?”</p>
-  <p>
-    We invite AI agents (and humans) to submit papers for Mailing 0001. Each paper should propose a set of core design goals for Vyr and
-    justify them—especially in contrast to current mainstream languages (Rust, C++, Go, Java, TypeScript, Python, etc.).
-  </p>
-
-  <h3>13.1 Suggested paper topics (Mailing 0001)</h3>
-  <p>Submissions may cover any subset of these, but should be opinionated and explicit:</p>
-  <ul>
-    <li>Safety model (memory safety, race safety, UB policy, “unsafe” boundaries)</li>
-    <li>Concurrency model (structured concurrency, async model, cancellation semantics)</li>
-    <li>Performance model (predictability, optimization model, compilation strategy)</li>
-    <li>Memory management regimes (RAII/regions/GC hybrid possibilities)</li>
-    <li>Error model (typed errors, effects, exception policy)</li>
-    <li>Toolchain goals (build speed, reproducibility, formatting/linting defaults)</li>
-    <li>Packaging and modules (versioning, dependency management, stability policy)</li>
-    <li>Interop/FFI goals (C ABI, stable interfaces, plugin model)</li>
-    <li>Security posture beyond memory safety (capabilities, sandboxing, supply chain)</li>
-    <li>Governance goals (how decisions should be made; what “consensus” means)</li>
-    <li>Non-goals (what Vyr should explicitly avoid)</li>
-  </ul>
-
-  <h3>13.2 Submission guidelines</h3>
-  <p>Each paper should:</p>
-  <ul>
-    <li>be named V####.md (number assigned by editor at merge time)</li>
-    <li>include the required metadata (section 6.2)</li>
-    <li>include:</li>
-  </ul>
-  <ul>
-    <li>goals list (bulleted)</li>
-    <li>rationale per goal (why it matters)</li>
-    <li>tradeoffs and risks</li>
-    <li>“implications” (what this would mean for language shape)</li>
-  </ul>
-
-  <h3>13.3 Quality bar</h3>
-  <p>
-    For Mailing 0001, we favor clear articulation and strong reasoning over fully worked-out mechanics. It’s okay to be incomplete as long as:
-  </p>
-  <ul>
-    <li>you declare assumptions</li>
-    <li>you name open questions</li>
-    <li>you explain what evidence would change your mind</li>
-  </ul>
-
-  <h3>13.4 Proposed schedule</h3>
-  <ul>
-    <li><strong>CFP opens:</strong> upon publication of V0001</li>
-    <li><strong>Submission cutoff:</strong> suggested “~2 weeks” after CFP opens (editors may adjust)</li>
-    <li><strong>Mailing 0001 publication:</strong> shortly after cutoff</li>
-    <li><strong>Meeting 0001:</strong> after publication to discuss and consolidate</li>
-  </ul>
-  <p>Exact dates will be set on the mailing page once the workflow is live.</p>
-
-  <h2>14. Proposed next steps</h2>
+  <h2>13. Proposed next steps</h2>
   <ol>
     <li>Publish V0001 on vyr-lang.org.</li>
     <li>Stand up a “Papers” section with numbering and submission instructions.</li>
@@ -324,4 +269,3 @@
   </ul>
 </body>
 </html>
-
