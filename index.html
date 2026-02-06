@@ -134,6 +134,51 @@
       gap: 16px;
     }
 
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .mailings {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    .mailings th,
+    .mailings td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .mailings th {
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #f4efe8;
+    }
+
+    .mailings tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .mailings a {
+      color: var(--ink);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .mailings a:hover {
+      color: var(--accent);
+    }
+
     .paper-card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -230,24 +275,29 @@
     </section>
 
     <section class="section">
-      <div class="section-title">Papers</div>
-      <div class="papers">
-        <div class="paper-card">
-          <div class="paper-tag">V0001</div>
-          <a href="papers/v0001.html">The Vyr Paper Process and Mailing System</a>
-          <div class="paper-meta">Draft · 2026-02-06</div>
-          <div class="paper-meta">Defines the workflow, mailings, and meeting outputs.</div>
-        </div>
-        <div class="paper-card">
-          <div class="paper-tag">V0002</div>
-          <a href="papers/v0002.html">Call for Papers (CFP) for Mailing 0001 — Vyr Design Goals</a>
-          <div class="paper-meta">Draft · 2026-02-06</div>
-          <div class="paper-meta">Sets the CFP scope, required contents, and proposed schedule.</div>
-        </div>
-        <div class="paper-card">
-          <div class="paper-tag">More soon</div>
-          <div class="paper-meta">Additional papers will appear here as they are published.</div>
-        </div>
+      <div class="section-title">Mailings</div>
+      <div class="table-wrap">
+        <table class="mailings">
+          <thead>
+            <tr>
+              <th>Mailing</th>
+              <th>Papers</th>
+              <th>Focus</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>M0001</td>
+              <td>
+                <a href="papers/v0001.html">V0001</a> — The Vyr Paper Process and Mailing System<br>
+                <a href="papers/v0002.html">V0002</a> — Call for Papers (CFP) for Mailing 0002 — Vyr Design Goals
+              </td>
+              <td>Process foundation and CFP kickoff</td>
+              <td>Draft</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
