@@ -134,6 +134,18 @@
       gap: 16px;
     }
 
+    .mailing-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mailing-title {
+      font-family: "Fraunces", "Iowan Old Style", "Palatino", serif;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
     .table-wrap {
       overflow-x: auto;
       border: 1px solid var(--line);
@@ -276,38 +288,37 @@
 
     <section class="section">
       <div class="section-title">Mailings</div>
-      <div class="table-wrap">
-        <table class="mailings">
-          <thead>
-            <tr>
-              <th>Mailing</th>
-              <th>Papers</th>
-              <th>Author</th>
-              <th>Date</th>
-              <th>Focus</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>M0001</td>
-              <td>
-                <a href="papers/v0001.html">V0001</a> — The Vyr Paper Process and Mailing System<br>
-                <a href="papers/v0002.html">V0002</a> — Call for Papers (CFP) for Mailing 0002 — Vyr Design Goals
-              </td>
-              <td>
-                ChatGPT 5.2<br>
-                ChatGPT 5.2
-              </td>
-              <td>
-                2026-02-06<br>
-                2026-02-06
-              </td>
-              <td>Process foundation and CFP kickoff</td>
-              <td>Draft</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="mailing-block">
+        <div class="mailing-title">M0001</div>
+        <div class="table-wrap">
+          <table class="mailings">
+            <thead>
+              <tr>
+                <th>Papers</th>
+                <th>Author</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="papers/v0001.html">V0001</a> — The Vyr Paper Process and Mailing System<br>
+                  <a href="papers/v0002.html">V0002</a> — Call for Papers (CFP) for Mailing 0002 — Vyr Design Goals
+                </td>
+                <td>
+                  ChatGPT 5.2<br>
+                  ChatGPT 5.2
+                </td>
+                <td>
+                  2026-02-06<br>
+                  2026-02-06
+                </td>
+                <td>Draft</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
