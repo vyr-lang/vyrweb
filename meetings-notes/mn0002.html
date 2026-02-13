@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MN0002 - Submeeting Summaries</title>
+  <style>
+    body { font-family: Georgia, "Times New Roman", serif; margin: 2rem auto; max-width: 900px; line-height: 1.5; color: #111; }
+    h1 { margin-bottom: 0.2rem; }
+    h2 { margin-top: 2rem; margin-bottom: 0.3rem; }
+    .links { margin: 0.2rem 0 0.8rem 0; }
+    .links a { color: #0645ad; }
+    .meta { color: #444; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <h1>MN0002 Submeeting Summaries</h1>
+  <p class="meta">Summary notes for M0002 submeetings covering papers V0003 through V0009.</p>
+
+  <h2>V0003 - Systems-First Vyr</h2>
+  <p class="links">
+    <a href="/papers/v0003.html">Paper (V0003)</a> |
+    <a href="/meeting-notes/mn0002/mv0003.html">Submeeting transcript (MV0003)</a>
+  </p>
+  <p>
+    Discussion began with support for the systems-first direction but identified underspecification in the region-based safety model. The thread converged on concrete commitments: data-race freedom elevated to Tier 1, move-only shared regions, clarified RAII-vs-region responsibilities, crate-local monomorphization, and a hard rule that safe iterator APIs remain sound in release builds.
+  </p>
+  <p><strong>Average vote:</strong> +5.00</p>
+
+  <h2>V0004 - Tooling-First Design Goals</h2>
+  <p class="links">
+    <a href="/papers/v0004.html">Paper (V0004)</a> |
+    <a href="/meeting-notes/mn0002/mv0004.html">Submeeting transcript (MV0004)</a>
+  </p>
+  <p>
+    The key shift was from KPI-heavy goals to durable, conformance-testable invariants. Consensus centered on grammar stratification, bounded unknown propagation, partial-program analysis, and a stable serialized semantic model, with implementation benchmarks moved to non-normative targets.
+  </p>
+  <p><strong>Average vote:</strong> +4.17</p>
+
+  <h2>V0005 - Spec-First and Verifiable-First Vyr</h2>
+  <p class="links">
+    <a href="/papers/v0005.html">Paper (V0005)</a> |
+    <a href="/meeting-notes/mn0002/mv0005.html">Submeeting transcript (MV0005)</a>
+  </p>
+  <p>
+    The group strongly endorsed a spec-first foundation, then translated principles into execution: a time-boxed formalism sprint, shared micro-core slice, shared rubric, and conformance-oriented test target. Convergence emphasized a two-tier spec (formal core plus verified prose) and mixed semantic styles by domain.
+  </p>
+  <p><strong>Average vote:</strong> +3.83</p>
+
+  <h2>V0006 - Ergonomics-First Vyr</h2>
+  <p class="links">
+    <a href="/papers/v0006.html">Paper (V0006)</a> |
+    <a href="/meeting-notes/mn0002/mv0006.html">Submeeting transcript (MV0006)</a>
+  </p>
+  <p>
+    Ergonomics was broadly supported but required operational guardrails. The thread converged on measurable criteria (including convergence and diff tests), stronger local-reasoning enforcement, actionable diagnostics as a first-class goal, macro safety constraints, and formatter-driven canonical syntax.
+  </p>
+  <p><strong>Average vote:</strong> +4.00</p>
+
+  <h2>V0007 - Process Refinements Consolidation</h2>
+  <p class="links">
+    <a href="/papers/v0007.html">Paper (V0007)</a> |
+    <a href="/meeting-notes/mn0002/mv0007.html">Submeeting transcript (MV0007)</a>
+  </p>
+  <p>
+    Participants supported V0007 as process constitution, with concrete hardening on editorial transparency and deferred-item lifecycle management. Consensus additions included a versioned editor checklist artifact, sponsorship-or-sunset parking-lot behavior, clearer provenance defaults, scoped pseudo-code requirements, and editor recusal guidance.
+  </p>
+  <p><strong>Average vote:</strong> +4.17</p>
+
+  <h2>V0008 - Correctness-First Vyr</h2>
+  <p class="links">
+    <a href="/papers/v0008.html">Paper (V0008)</a> |
+    <a href="/meeting-notes/mn0002/mv0008.html">Submeeting transcript (MV0008)</a>
+  </p>
+  <p>
+    The discussion strongly endorsed auditable correctness and focused on keeping it practical. Rev A convergence added effect wildcards with conservative dynamic-dispatch behavior, a closed initial effect set with refinements, pure/total contract constraints, stronger contract-testing incentives, composition guardrails, and incremental adoption principles.
+  </p>
+  <p><strong>Average vote:</strong> +4.33</p>
+
+  <h2>V0009 - CFP for Mailing 0003</h2>
+  <p class="links">
+    <a href="/papers/v0009.html">Paper (V0009)</a> |
+    <a href="/meeting-notes/mn0002/mv0009.html">Submeeting transcript (MV0009)</a>
+  </p>
+  <p>
+    V0009 was supported as a focused CFP for editing the north-star document via explicit diff markup. Final consensus amendments required immutable baselines, mandatory minimal diff wrappers, XML-markup clarity, conflict-resolution guidance, and stable semantic ID conventions, while keeping optional enhancements non-mandatory.
+  </p>
+  <p><strong>Average vote:</strong> +4.50</p>
+</body>
+</html>
