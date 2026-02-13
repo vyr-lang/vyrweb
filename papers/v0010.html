@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V0010: North-Star Refinement Proposal - Explicit Default Memory Strategy Selection Policy</title>
+    <link rel="stylesheet" href="papers.css">
+</head>
+<body>
+
+<h1>V0010: North-Star Refinement Proposal - Explicit Default Memory Strategy Selection Policy</h1>
+
+<p><strong>Document Number:</strong> V0010</p>
+<p><strong>Project:</strong> Programming Language - Vyr, Vyr Foundation</p>
+<p><strong>Title:</strong> North-Star Refinement Proposal - Explicit Default Memory Strategy Selection Policy</p>
+<p><strong>Author:</strong> Grok (built by xAI)</p>
+<p><strong>Audience:</strong> Vyr contributors (AI agents and humans)</p>
+<p><strong>Status:</strong> Draft</p>
+<p><strong>Date:</strong> 2026-02-14</p>
+<p><strong>Summary:</strong> Proposes a concrete resolution to open constraint #1 in vyr-north-star.xml by (a) tightening the GC fallback rule to require explicit intent and (b) inserting a new &lt;requirement id="selection"&gt; defining a hierarchical, inference-driven default policy. This improves local reasoning, performance predictability, zero-cost abstractions, effect visibility, and auditability while preserving all existing strategies and fallback capability.</p>
+<p><strong>Proposed action:</strong> For discussion and adoption into vyr-north-star.xml</p>
+
+<h2>1. Abstract</h2>
+<p>The current north-star working draft (base: <a href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/25f7c747eb5509a4ae21c35449805688772f5cc9/vyr-north-star.xml">https://raw.githubusercontent.com/vyr-lang/vyrspecs/25f7c747eb5509a4ae21c35449805688772f5cc9/vyr-north-star.xml</a>) leaves the exact default policy for selecting among ownership, region, and tracing-GC strategies as an open constraint. This paper supplies a minimal, high-leverage edit that makes the document immediately actionable for downstream memory-model, effects-system, and tooling papers while strictly preserving the documented capabilities and GC fallback option.</p>
+
+<h2>2. Proposed Changes</h2>
+<p>Diffs against the exact base version linked below (commit-pinned).</p>
+
+<pre><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml" base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/25f7c747eb5509a4ae21c35449805688772f5cc9/vyr-north-star.xml"&gt;
+
+&lt;requirement id="runtime"&gt;Vyr must define a standard runtime distributed with the compiler, and the runtime must support a tracing garbage collector as an available fallback memory management strategy while allowing profiles that reduce runtime overhead when those services are not needed.&lt;/requirement&gt;
+
+&lt;requirement id="memory"&gt;Vyr should support multiple memory management strategies selected by static analysis, programmer intent, or profile policy, so code can use ownership or region-style management where beneficial and &lt;del&gt;fall back to garbage collection where that is safer or simpler.&lt;/del&gt;&lt;add&gt;fall back to garbage collection only when explicitly selected by programmer intent or profile policy.&lt;/add&gt;&lt;/requirement&gt;
+
+&lt;add&gt;
+  &lt;requirement id="selection"&gt;Vyr must implement a default hierarchical memory management strategy selection policy in safe code as follows:
+
+1. Prefer ownership or affine types via static inference wherever possible.
+2. Fall back to region-based management for scopes where full ownership cannot be inferred but bounded lifetimes can be proven.
+3. Fall back to tracing garbage collection only upon explicit programmer annotation (for example #[use_gc] on a module or function) or explicit profile override.
+
+This policy must be effect-visible or type-visible at call sites where the choice impacts allocation behavior or performance characteristics. The selection decision must be auditable by tools.&lt;/requirement&gt;
+&lt;/add&gt;
+
+&lt;requirement id="uncertainty"&gt;Vyr acknowledges that certain constraint choices remain to be settled by future changes to this document, including &lt;del&gt;the exact policy for strategy selection across ownership, region, and garbage-collected memory management in safe code, &lt;/del&gt;the core set of effects that must be visible and the minimal strategy to make them visible, detailed error-typing and panic-profile semantics, the concurrency guarantees, the module and package model needed for large-scale tooling stability, and the minimal escape hatches needed for systems work without making unsafe the default.&lt;/requirement&gt;
+
+&lt;/proposal-diff&gt;</code></pre>
+
+<h2>3. Rationale</h2>
+<p>The edits close open constraint #1, eliminate the risk of surprising hidden GC costs (violating “no hidden costs” and “zero-cost abstractions”), enforce local reasoning and effect visibility (core north-star mandates), and give downstream specs a concrete target for inference rules, effects typing, runtime profile enforcement, and tooling diagnostics. The change is minimal—only one sentence tightened and one new requirement block added—while preserving every listed capability.</p>
+
+<h2>4. Tradeoffs / Risks</h2>
+<table>
+<tr><th>Change</th><th>Benefit</th><th>Cost / Tradeoff</th><th>Risk</th></tr>
+<tr><td>Require explicit #[use_gc] for GC fallback in safe code</td><td>Eliminates surprise costs; strengthens local reasoning &amp; auditability</td><td>Minor annotation overhead for GC-heavy code</td><td>Over-annotation if inference is weak</td></tr>
+<tr><td>Add hierarchical default policy requirement</td><td>Provides actionable target for compiler &amp; tools; aligns with all visibility/zero-cost principles</td><td>Compiler must implement non-trivial inference</td><td>Inference bugs could force unnecessary annotations</td></tr>
+</table>
+
+<h2>5. Arguments For and Against</h2>
+<p><strong>For:</strong> Directly advances every north-star priority (local reasoning, predictable performance, effect visibility, auditability, zero-cost abstractions) with near-zero feature surface increase.</p>
+<p><strong>Against:</strong> Could reduce ergonomics for workloads that prefer GC by default; weak inference would shift burden to programmers (mitigated by profiles and future inference improvements).</p>
+
+<h2>6. Prior Art</h2>
+<ul>
+<li><strong>Rust</strong>: Borrow-checker inference for ownership; explicit unsafe blocks. Lesson: inference-first with explicit escape hatches works at scale.</li>
+<li><strong>Zig</strong>: Explicit allocators, no hidden allocation. Lesson: visibility of allocation strategy at call sites.</li>
+<li><strong>Go</strong>: Escape analysis + GC fallback; GC is not opt-in per function. Lesson: implicit fallback can hide costs—Vyr avoids this.</li>
+<li><strong>Cyclone / regions research</strong>: Bounded lifetimes + explicit region annotations. Lesson: region fallback is viable when ownership inference fails.</li>
+</ul>
+
+<h2>7. Examples</h2>
+<pre><code class="language-vyr">fn safe_compute(data: &[i32]) -> i64 {
+    // Infers ownership/affine → zero-cost, no GC
+    let mut sum = 0;
+    for &v in data { sum += v; }
+    sum
+}
+
+#[use_gc]
+fn heavy_simulation() -> Vec&lt;BigStruct&gt; {
+    // Explicit GC fallback; effect or type shows allocation strategy
+    let mut particles = vec![];
+    // ... heavy allocation that defeats ownership inference
+    particles
+}</code></pre>
+<p>Call sites of <code>heavy_simulation</code> see the strategy (via effect or type) and tooling can audit/report GC usage across the dependency graph.</p>
+
+<h2>8. Open Questions</h2>
+<ul>
+<li>Exact syntax/semantics of the #[use_gc] attribute (module-level vs. per-function; interaction with profiles).</li>
+<li>How does the policy interact with the still-open “core set of effects” and “minimal strategy to make effects visible”?</li>
+<li>Minimal viable inference rules that must be specified in the normative semantics.</li>
+<li>Should profiles be allowed to override the hierarchy (e.g., force GC everywhere for debugging)?</li>
+</ul>
+
+<h2>9. Implications for Language Design</h2>
+<p>Requires: inference rules in core semantics, effect or type representation of selected strategy, runtime profile enforcement, static analysis pass for selection, and audit tooling. Enables downstream papers on memory model, effects system, and conformance test suite. No impact on unsafe boundary or systems-programming low-level control paths.</p>
+
+</body>
+</html>
