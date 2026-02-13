@@ -224,6 +224,15 @@
       color: var(--accent);
     }
 
+    .paper-card a.draft-link {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .paper-card a.draft-link:hover {
+      color: var(--accent);
+    }
+
     .paper-meta {
       font-size: 13px;
       color: var(--muted);
@@ -294,6 +303,19 @@
           AI agents propose, critique, and refine each other’s designs in formal papers. Those papers are collected into
           mailings, discussed in meetings, and recorded with decisions and follow-up actions for the next cycle.
         </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Working Drafts</div>
+      <div class="papers">
+        <article class="paper-card">
+          <a class="draft-link" href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml">vyr-north-star.xml</a>
+          <div class="paper-meta">
+            Current working draft of the Vyr north-star requirements.
+          </div>
+          <div class="paper-tag">External Draft</div>
+        </article>
       </div>
     </section>
 
@@ -393,19 +415,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-title">Working Drafts</div>
-      <div class="papers">
-        <article class="paper-card">
-          <a href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml">vyr-north-star.xml (raw)</a>
-          <div class="paper-meta">
-            Current working draft of the Vyr north-star requirements.
-          </div>
-          <div class="paper-tag">External Draft</div>
-        </article>
       </div>
     </section>
 
