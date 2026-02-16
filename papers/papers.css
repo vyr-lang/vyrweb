@@ -101,6 +101,12 @@ pre.soft-wrap {
   overflow-wrap: anywhere;
 }
 
+pre.soft-wrap code {
+  white-space: inherit;
+  overflow-wrap: inherit;
+  word-break: break-word;
+}
+
 @media (max-width: 720px) {
   main {
     padding: 36px 18px 56px;
