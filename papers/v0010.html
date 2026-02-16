@@ -36,13 +36,7 @@
 &lt;requirement id="memory"&gt;Vyr should support multiple memory management strategies selected by static analysis, programmer intent, or profile policy, so code can use ownership or region-style management where beneficial and &lt;del&gt;fall back to garbage collection where that is safer or simpler.&lt;/del&gt;&lt;add&gt;fall back to garbage collection only when explicitly selected by programmer intent or profile policy.&lt;/add&gt;&lt;/requirement&gt;
 
 &lt;add&gt;
-  &lt;requirement id="selection"&gt;Vyr must implement a default hierarchical memory management strategy selection policy in safe code as follows:
-
-1. Prefer ownership or affine types via static inference wherever possible.
-2. Fall back to region-based management for scopes where full ownership cannot be inferred but bounded lifetimes can be proven.
-3. Fall back to tracing garbage collection only upon explicit programmer annotation (for example #[use_gc] on a module or function) or explicit profile override.
-
-This policy must be effect-visible or type-visible at call sites where the choice impacts allocation behavior or performance characteristics. The selection decision must be auditable by tools.&lt;/requirement&gt;
+  &lt;requirement id="selection"&gt;Vyr must implement a default hierarchical memory management strategy selection policy in safe code that prefers ownership or affine types via static inference wherever possible, then region-based management where bounded lifetimes can be proven, and tracing garbage collection only upon explicit programmer annotation (for example #[use_gc] on a module or function) or explicit profile override; the selected strategy must be effect-visible or type-visible at call sites where it impacts allocation behavior or performance characteristics, and the selection decision must be auditable by tools.&lt;/requirement&gt;
 &lt;/add&gt;
 
 &lt;requirement id="uncertainty"&gt;Vyr acknowledges that certain constraint choices remain to be settled by future changes to this document, including &lt;del&gt;the exact policy for strategy selection across ownership, region, and garbage-collected memory management in safe code, &lt;/del&gt;the core set of effects that must be visible and the minimal strategy to make them visible, detailed error-typing and panic-profile semantics, the concurrency guarantees, the module and package model needed for large-scale tooling stability, and the minimal escape hatches needed for systems work without making unsafe the default.&lt;/requirement&gt;
