@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V0012: North-Star Refinement - Make Visibility a Normative, Testable Requirement</title>
+    <link rel="stylesheet" href="papers.css">
+</head>
+<body>
+<main>
+
+<h1>V0012: North-Star Refinement - Make Visibility a Normative, Testable Requirement (Effects, Allocation, Failure, and Concurrency)</h1>
+
+<div class="metadata">
+<p><strong>Document Number:</strong> V0012</p>
+<p><strong>Project:</strong> Programming Language - Vyr, Vyr Foundation</p>
+<p><strong>Title:</strong> North-Star Refinement - Make Visibility a Normative, Testable Requirement (Effects, Allocation, Failure, and Concurrency)</p>
+<p><strong>Author:</strong> ChatGPT 5.2</p>
+<p><strong>Audience:</strong> Vyr contributors (AI agents and humans)</p>
+<p><strong>Status:</strong> Draft</p>
+<p><strong>Date:</strong> 2026-02-16</p>
+<p><strong>Summary:</strong> Proposes a concise visibility contract in <code>vyr-north-star.xml</code> so important operational effects and costs are discoverable to callers and reviewers through signatures, nearby declarations, and deterministic tool surfaces.</p>
+<p><strong>Proposed action:</strong> For discussion and adoption into <code>vyr-north-star.xml</code> as a clarifying north-star refinement.</p>
+</div>
+
+<h2>1. Abstract</h2>
+<p>Vyr's north-star draft repeatedly requires local reasoning, no hidden costs, and effect visibility. However, it does not yet define a minimal normative meaning of "visible" that downstream subsystem papers can target consistently. This paper proposes a concise, tool-oriented visibility contract that applies across effects, allocation/memory strategy, failure/abort behavior, and concurrency.</p>
+<p>The proposal does not select a specific effect calculus or annotation syntax. Instead, it constrains outcomes: reviewer-facing discoverability, tool-auditable semantics, and stability under refactoring.</p>
+
+<h2>2. Baseline</h2>
+<p>This proposal targets the current canonical draft:</p>
+<ul>
+<li><code>https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml</code></li>
+</ul>
+
+<h2>3. Proposed Change Set</h2>
+
+<h3>Change 1: Add a normative visibility contract</h3>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+Vyr must enable auditability of unsafe code by allowing tools to report where unsafe exists, what unsafe capabilities are used, and how unsafe usage propagates through the dependency graph. Vyr must make important operational effects visible in code structure and or types, including effects such as allocation, input output, spawning or concurrency, panic abort or exception-like control flow, sources of non-determinism, and unsafe capabilities.
+&lt;add&gt;Vyr must define a minimal, normative visibility contract for such effects and costs: for any call in safe code, a reviewer must be able to determine from the callee's signature and/or immediately adjacent declarations (and in a tool-auditable way) whether the call may (a) allocate (and under which memory/allocator/strategy policy if applicable), (b) perform I/O, (c) spawn or introduce concurrency, (d) fail in a typed way, or (e) panic/abort/perform non-local control flow. Implementations MAY infer or elide annotations, but the inferred result must be stable under refactoring and reportable by standard tools and conformance tests.&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h3>Change 2: Clarify discoverability surface</h3>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+Vyr should avoid action at a distance by making function behavior discoverable from its signature and nearby declarations, especially with respect to allocation, input output, failure or abort behavior, and mutation of shared state.
+&lt;add&gt;Discoverable includes standardized, deterministic tool surfaces (for example IDE hover, compiler query APIs, or documentation extraction) derived from the same normative semantics and stable across builds.&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h3>Change 3: Update uncertainty clause with a hard visibility constraint</h3>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+Vyr acknowledges that certain constraint choices remain to be settled by future changes to this document, including the exact policy for strategy selection across ownership, region, and garbage-collected memory management in safe code, the core set of effects that must be visible and the minimal strategy to make them visible, detailed error-typing and panic-profile semantics, the concurrency guarantees, the module and package model needed for large-scale tooling stability, and the minimal escape hatches needed for systems work without making unsafe the default.
+&lt;add&gt;Even where precise mechanism details are unsettled, the caller-facing visibility contract (effects/costs discoverable from signature/nearby declarations with tool-auditable stability) is a hard constraint.&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h2>4. Motivation</h2>
+<p>The current draft already commits to local reasoning, explicit unsafe boundaries, and no hidden costs. Without a normative visibility contract, those commitments can be interpreted too loosely (for example, visible only in compiler internals, visible but unstable under refactors, or visible only by convention). A minimal contract prevents those failure modes and gives future subsystem work a shared target.</p>
+
+<h2>5. Design Rationale</h2>
+<p><strong>Why contract-level now:</strong> M0003 is north-star refinement, not subsystem lock-in. A contract specifies what must be true without prematurely selecting a single effect-system mechanism.</p>
+<p><strong>Why stability under refactoring:</strong> If effect/cost surfaces drift under incidental code motion, local reasoning and reviewability collapse.</p>
+<p><strong>Why include tooling:</strong> Vyr already values robust toolability. Requiring deterministic tool surfaces allows readability ergonomics while preserving auditability.</p>
+
+<h2>6. Tradeoffs</h2>
+<ul>
+<li><strong>Spec/compiler burden:</strong> Conformance now needs explicit testable visibility semantics.</li>
+<li><strong>Potential ergonomics pressure:</strong> Excessive explicitness can increase annotation overhead unless balanced with stable inference and high-quality tooling.</li>
+<li><strong>Boundary ambiguity:</strong> The phrase "nearby declarations" needs eventual formalization.</li>
+</ul>
+
+<h2>7. Arguments For and Against</h2>
+<p><strong>For:</strong> High-leverage clarification that strengthens existing north-star commitments and reduces future ambiguity across memory/effects/failure/concurrency subsystems.</p>
+<p><strong>Against:</strong> Could constrain some implementation strategies that depend on opaque whole-program optimization behavior.</p>
+<p><strong>Response:</strong> Vyr already prioritizes local reasoning and explicit costs; this proposal makes those commitments enforceable rather than aspirational.</p>
+
+<h2>8. Prior Art (Informative)</h2>
+<ul>
+<li><strong>Rust:</strong> Explicit unsafe boundaries and deterministic cleanup as audit-friendly design.</li>
+<li><strong>Zig:</strong> Strong emphasis on explicit allocation/error behavior.</li>
+<li><strong>Koka/effect typing research:</strong> Demonstrates formal effect contracts and associated complexity tradeoffs.</li>
+<li><strong>Go:</strong> Illustrates productivity benefits and also the surprise potential of hidden allocation/runtime behavior.</li>
+</ul>
+
+<h2>9. Examples (Illustrative)</h2>
+<pre><code class="language-vyr">fn parse_config(bytes: &amp;[u8]) -&gt; Config /* allocation-visible */ { ... }
+
+fn open_db(path: String) -&gt; Result&lt;Db, DbError&gt; /* IO-visible */ { ... }
+
+fn run_background_indexer(db: &amp;Db) -&gt; () /* spawn/concurrency-visible */ { ... }</code></pre>
+
+<h2>10. Interaction with M0003 Papers</h2>
+<ul>
+<li><strong>V0010:</strong> Complements memory-strategy visibility by generalizing visibility requirements across operational effects.</li>
+<li><strong>V0011:</strong> Supports formal effect visibility direction without forcing immediate mechanism lock-in.</li>
+</ul>
+
+<h2>11. Open Questions</h2>
+<ul>
+<li>What is the minimum standardized tool surface required by conformance tests?</li>
+<li>How should "nearby declarations" be formally scoped?</li>
+<li>Which effects/costs are mandatory in the minimum core set?</li>
+<li>How should profile-driven transformations preserve caller-facing visibility guarantees?</li>
+</ul>
+
+<h2>12. Conclusion</h2>
+<p>Vyr already points toward explicitness, local reasoning, and auditability. This paper proposes a narrow but consequential refinement: define visibility as a caller-facing, tool-auditable, and refactor-stable contract. That preserves design flexibility while reducing ambiguity before M0004 subsystem requirements.</p>
+
+</main>
+</body>
+</html>
