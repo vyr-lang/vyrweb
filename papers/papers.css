@@ -96,6 +96,11 @@ a:hover {
   margin: 0.4em 0;
 }
 
+pre.soft-wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 720px) {
   main {
     padding: 36px 18px 56px;
