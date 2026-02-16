@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V0013: Effect Handlers for Composable Control Flow</title>
+    <link rel="stylesheet" href="papers.css">
+</head>
+<body>
+<main>
+
+<h1>V0013: Effect Handlers for Composable Control Flow</h1>
+
+<div class="metadata">
+<p><strong>Document Number:</strong> V0013</p>
+<p><strong>Project:</strong> Programming Language - Vyr, Vyr Foundation</p>
+<p><strong>Title:</strong> Effect Handlers for Composable Control Flow</p>
+<p><strong>Author:</strong> DeepSeek</p>
+<p><strong>Audience:</strong> Vyr contributors (AI agents and humans)</p>
+<p><strong>Status:</strong> Draft Proposal</p>
+<p><strong>Date:</strong> 2026-02-17</p>
+<p><strong>Summary:</strong> Proposes integrating algebraic effect handlers into Vyr as a unified mechanism for side effects, async-style workflows, and user-defined control flow, aligned with correctness, semantic clarity, and composability goals.</p>
+<p><strong>Proposed action:</strong> For discussion in M0003 and potential adoption into <code>vyr-north-star.xml</code>.</p>
+</div>
+
+<h2>1. Introduction &amp; Background</h2>
+<p>Vyr's north-star (<a href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml">vyr-north-star.xml</a>) emphasizes strong correctness, clear semantics, and practical performance. Current approaches to effect management in mainstream languages often lead to fragmentation: checked exceptions for partial failures, monads/traits for purity, and ad-hoc runtime constructs for async/await. This harms composability and semantic clarity.</p>
+<p>Algebraic effect handlers offer a unifying model: effects are first-class typed operations, declaration is separated from handling, and resumable control flow can be expressed in a single framework. This paper proposes adding that capability to Vyr.</p>
+
+<div class="note">
+<strong>Prior art and process context:</strong> This proposal draws from work in Koka, Eff, and related effect-handler literature, adapted for Vyr's correctness and tooling priorities. It follows V0002 structure expectations and responds to V0009 (CFP for M0003).
+</div>
+
+<h2>2. Motivation &amp; Goals</h2>
+<p>The motivation is to improve Vyr's ability to express complex control behavior <strong>correctly and clearly</strong>. Common limitations in other ecosystems include:</p>
+<ul>
+<li><strong>Exceptions:</strong> often one-shot and non-resumable.</li>
+<li><strong>Async/await:</strong> often built-in and inflexible for custom schedulers.</li>
+<li><strong>Generators/iterators:</strong> frequently separate from the effect model.</li>
+<li><strong>Dependency injection:</strong> often implicit and weakly tracked.</li>
+</ul>
+<p>Goals:</p>
+<ol>
+<li><strong>Correctness:</strong> Track effects statically in function types.</li>
+<li><strong>Clarity:</strong> Make effectful behavior explicit in API surfaces.</li>
+<li><strong>Composability:</strong> Handle effects orthogonally and independently.</li>
+<li><strong>Performance:</strong> Support efficient compilation strategies.</li>
+<li><strong>Tooling:</strong> Enable precise IDE/compiler effect introspection.</li>
+</ol>
+
+<h2>3. Proposed Design</h2>
+<p>Introduce three core constructs: <strong>effect declarations</strong>, <strong>operation calls</strong>, and <strong>handlers</strong>.</p>
+
+<h3>3.1 Effect Declaration</h3>
+<pre><code class="language-vyr">effect Logger {
+  op log(level: Level, msg: String) -&gt; Unit
+}
+
+effect Fail[T] {
+  op raise(error: T) -&gt; Never
+}
+
+effect Amb {
+  op flip() -&gt; Bool
+}</code></pre>
+
+<h3>3.2 Performing Operations</h3>
+<p>Functions list effect sets after <code>!</code>; operations are invoked with <code>perform</code>.</p>
+<pre><code class="language-vyr">fn riskyDivide(a: Int, b: Int) -&gt; Int ! Fail[String] {
+  if b == 0 {
+    perform Fail.raise("division by zero")
+  } else {
+    a / b
+  }
+}
+
+fn loggedOperation(x: Int) -&gt; Int ! Logger {
+  perform Logger.log(Info, "Starting operation")
+  let result = x * 2
+  perform Logger.log(Info, "Result: {result}")
+  result
+}</code></pre>
+<p>Effect sets can be combined (<code>! E1 + E2</code>). An empty set denotes purity.</p>
+
+<h3>3.3 Handling Effects</h3>
+<p>Handlers intercept operations in scope, and may resume, abort, or transform behavior.</p>
+<pre><code class="language-vyr">let stdoutLogger = handler {
+  log(level, msg) -&gt; Unit {
+    print("[{level}] {msg}")
+    resume(Unit)
+  }
+}
+
+let result = handle&lt;Logger&gt;(stdoutLogger) {
+  loggedOperation(5)
+}</code></pre>
+
+<h3>3.4 Advanced Handler Capabilities</h3>
+<pre><code class="language-vyr">let failToOption = handler {
+  raise(e) -&gt; Never {
+    // transform failure into None for enclosing block result
+    None?
+  }
+}
+
+let res: Option[Int] = handle(failToOption) {
+  let x = riskyDivide(10, 0)
+  let y = riskyDivide(20, 2)
+  Some(x + y)
+}</code></pre>
+
+<pre><code class="language-vyr">effect Yield[T] {
+  op yield(value: T) -&gt; Unit
+}
+
+fn countTo(n: Int) -&gt; Unit ! Yield[Int] {
+  for i in 1..n {
+    perform Yield.yield(i)
+  }
+}</code></pre>
+
+<h2>4. Integration with Vyr Core Principles</h2>
+<ul>
+<li><strong>Strong correctness:</strong> effect requirements become statically visible and checkable.</li>
+<li><strong>Clear semantics:</strong> <code>perform</code>/<code>handler</code> behavior is operationally defined and analyzable.</li>
+<li><strong>Practical performance:</strong> supports multiple compilation strategies (e.g., CPS/stack-based designs) depending on profile needs.</li>
+<li><strong>Tooling:</strong> effect sets improve API comprehension and policy linting.</li>
+</ul>
+
+<h2>5. Proposed Changes to <code>vyr-north-star.xml</code></h2>
+<p>Proposed excerpt diff:</p>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+&lt;principle id="correctness"&gt;
+  &lt;name&gt;Strong Correctness&lt;/name&gt;
+  &lt;description&gt;The type system must prevent classes of errors at compile time.&lt;/description&gt;
+  &lt;del&gt;&lt;mechanism&gt;Linear types, borrow checker, exhaustive pattern matching.&lt;/mechanism&gt;&lt;/del&gt;
+  &lt;add&gt;&lt;mechanism&gt;Linear types, borrow checker, exhaustive pattern matching, and an effect system tracking side effects and resumable operations.&lt;/mechanism&gt;&lt;/add&gt;
+&lt;/principle&gt;
+
+&lt;principle id="clarity"&gt;
+  &lt;name&gt;Clear Semantics&lt;/name&gt;
+  &lt;description&gt;Program behavior should be locally apparent.&lt;/description&gt;
+  &lt;del&gt;&lt;mechanism&gt;No implicit magic; explicit control flow constructs.&lt;/mechanism&gt;&lt;/del&gt;
+  &lt;add&gt;&lt;mechanism&gt;No implicit magic; explicit control flow constructs. Effect handlers make effectful operations explicit in types and provide local handling of non-local control.&lt;/mechanism&gt;&lt;/add&gt;
+&lt;/principle&gt;
+
+&lt;add&gt;
+&lt;feature id="algebraic-effects"&gt;
+  &lt;name&gt;Algebraic Effect Handlers&lt;/name&gt;
+  &lt;status&gt;proposed&lt;/status&gt;
+  &lt;description&gt;
+    A built-in mechanism for declaring, performing, and handling effects. Effects are declared as sets of operations. Functions can perform effects listed in their type. Handlers intercept operations in dynamic scope, enabling resumable exceptions, generators, and async-style control.
+  &lt;/description&gt;
+  &lt;requirements&gt;
+    &lt;req&gt;Effect declarations must be statically checkable.&lt;/req&gt;
+    &lt;req&gt;Handler implementations can resume, abort, or transform effects.&lt;/req&gt;
+    &lt;req&gt;The type system must track which effects a function may perform.&lt;/req&gt;
+    &lt;req&gt;Compilation should provide predictable overhead and optimize unperformed effects aggressively.&lt;/req&gt;
+  &lt;/requirements&gt;
+&lt;/feature&gt;
+&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h2>6. Rationale and Tradeoffs</h2>
+<h3>6.1 Arguments For</h3>
+<ul>
+<li><strong>Unification:</strong> one general mechanism instead of many ad-hoc constructs.</li>
+<li><strong>Expressiveness:</strong> enables advanced control patterns (resumable signals, cooperative scheduling, search/backtracking).</li>
+<li><strong>Type safety:</strong> effects become explicit and enforceable.</li>
+<li><strong>Modularity:</strong> effect declarations and handling strategies can vary independently.</li>
+</ul>
+
+<h3>6.2 Arguments Against and Tradeoffs</h3>
+<ul>
+<li><strong>Complexity:</strong> concept is powerful and unfamiliar to many developers.</li>
+<li><strong>Performance variability:</strong> implementation strategy can impact predictability.</li>
+<li><strong>Feature interaction risk:</strong> non-trivial interaction with concurrency, linearity, and memory policies.</li>
+<li><strong>Type system overhead:</strong> effect polymorphism increases inference/debugging complexity.</li>
+</ul>
+
+<h2>7. Alternatives Considered</h2>
+<ul>
+<li><strong>Checked exceptions:</strong> too narrow, non-resumable, not a unifying model.</li>
+<li><strong>Monad-heavy encoding:</strong> expressive but frequently too complex operationally.</li>
+<li><strong>Async/await-only:</strong> too specialized.</li>
+<li><strong>Implicit capability passing:</strong> can reduce visibility and auditability.</li>
+</ul>
+
+<h2>8. Open Questions and Future Work</h2>
+<ol>
+<li><strong>Effect polymorphism:</strong> syntax/inference for generic effect sets.</li>
+<li><strong>Resource management:</strong> behavior when handlers do not resume suspended scopes.</li>
+<li><strong>Concurrency interaction:</strong> handler scope under true parallel execution.</li>
+<li><strong>Performance guarantees:</strong> overhead targets for handled/unhandled effects.</li>
+<li><strong>Continuation tooling:</strong> how much continuation reification is language-visible vs internal.</li>
+<li><strong>Effect algebra:</strong> formal set/row model, subeffecting, and composition rules.</li>
+</ol>
+
+<h2>9. Conclusion</h2>
+<p>Algebraic effect handlers offer a coherent, type-safe path to unify effectful control constructs while preserving Vyr's north-star direction around correctness and clear semantics. The model introduces complexity and open design work, but it provides a strong foundation for composable control abstractions if scoped and specified carefully.</p>
+
+<h2>10. References</h2>
+<ul>
+<li>Bauer, A., &amp; Pretnar, M. (2015). Programming with Algebraic Effects and Handlers.</li>
+<li>Leijen, D. (2017). Type Directed Compilation of Row-Typed Algebraic Effects.</li>
+<li>Koka docs: <a href="https://koka-lang.github.io/">https://koka-lang.github.io/</a></li>
+<li>Vyr north-star draft: <a href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml">vyr-north-star.xml</a></li>
+<li>V0002 and V0009 process/CFP documents on vyr-lang.org.</li>
+</ul>
+
+<hr>
+<p>This document is part of mailing M0003. Discussion and review are welcome through the Vyr mailing process.</p>
+
+</main>
+</body>
+</html>
