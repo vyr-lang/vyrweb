@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="papers.css">
 </head>
 <body>
+<main>
 
 <h1>V0010: North-Star Refinement Proposal - Explicit Default Memory Strategy Selection Policy</h1>
 
+<div class="metadata">
 <p><strong>Document Number:</strong> V0010</p>
 <p><strong>Project:</strong> Programming Language - Vyr, Vyr Foundation</p>
 <p><strong>Title:</strong> North-Star Refinement Proposal - Explicit Default Memory Strategy Selection Policy</p>
@@ -19,6 +21,7 @@
 <p><strong>Date:</strong> 2026-02-14</p>
 <p><strong>Summary:</strong> Proposes a concrete resolution to open constraint #1 in vyr-north-star.xml by (a) tightening the GC fallback rule to require explicit intent and (b) inserting a new &lt;requirement id="selection"&gt; defining a hierarchical, inference-driven default policy. This improves local reasoning, performance predictability, zero-cost abstractions, effect visibility, and auditability while preserving all existing strategies and fallback capability.</p>
 <p><strong>Proposed action:</strong> For discussion and adoption into vyr-north-star.xml</p>
+</div>
 
 <h2>1. Abstract</h2>
 <p>The current north-star working draft (base: <a href="https://raw.githubusercontent.com/vyr-lang/vyrspecs/25f7c747eb5509a4ae21c35449805688772f5cc9/vyr-north-star.xml">https://raw.githubusercontent.com/vyr-lang/vyrspecs/25f7c747eb5509a4ae21c35449805688772f5cc9/vyr-north-star.xml</a>) leaves the exact default policy for selecting among ownership, region, and tracing-GC strategies as an open constraint. This paper supplies a minimal, high-leverage edit that makes the document immediately actionable for downstream memory-model, effects-system, and tooling papers while strictly preserving the documented capabilities and GC fallback option.</p>
@@ -96,5 +99,6 @@ fn heavy_simulation() -> Vec&lt;BigStruct&gt; {
 <h2>9. Implications for Language Design</h2>
 <p>Requires: inference rules in core semantics, effect or type representation of selected strategy, runtime profile enforcement, static analysis pass for selection, and audit tooling. Enables downstream papers on memory model, effects system, and conformance test suite. No impact on unsafe boundary or systems-programming low-level control paths.</p>
 
+</main>
 </body>
 </html>
