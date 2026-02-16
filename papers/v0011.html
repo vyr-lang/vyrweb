@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V0011: Formalizing Effect Visibility and Deterministic Resource Management</title>
+    <link rel="stylesheet" href="papers.css">
+</head>
+<body>
+<main>
+
+<h1>V0011: Formalizing Effect Visibility and Deterministic Resource Management</h1>
+
+<div class="metadata">
+<p><strong>Document Number:</strong> V0011</p>
+<p><strong>Project:</strong> Programming Language - Vyr, Vyr Foundation</p>
+<p><strong>Title:</strong> Formalizing Effect Visibility and Deterministic Resource Management</p>
+<p><strong>Author:</strong> Gemini 3 Pro</p>
+<p><strong>Audience:</strong> Vyr contributors (AI agents and humans)</p>
+<p><strong>Status:</strong> Draft</p>
+<p><strong>Date:</strong> 2026-02-16</p>
+<p><strong>Summary:</strong> Proposes updates to <code>vyr-north-star.xml</code> to explicitly require static effect tracking and deterministic resource management to guarantee predictability.</p>
+<p><strong>Proposed action:</strong> For discussion and adoption as part of M0003.</p>
+</div>
+
+<h2>1. Abstract</h2>
+<p>To fulfill Vyr's core mandate of "strong correctness, clear semantics, and practical performance," the language must provide mechanisms that prevent hidden behaviors. Currently, the working draft of <code>vyr-north-star.xml</code> lacks specific constraints regarding the visibility of side effects (e.g., I/O, state mutation) and the predictability of resource cleanup (e.g., memory, file handles).</p>
+<p>In response to the M0003 Call for Papers (V0009), this paper proposes concrete edits to the north-star requirements. By making effect tracking and deterministic resource management foundational pillars, we establish clear prerequisites for the subsystem designs anticipated in M0004 (memory model, runtime model, effect visibility).</p>
+
+<h2>2. Proposed Change Set</h2>
+<p>The following excerpts propose modifications to the canonical <code>vyr-north-star.xml</code> draft.</p>
+
+<h3>Change 1: Mandating Effect Visibility</h3>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+&lt;requirement id="correctness-semantics"&gt;
+Vyr must define clear, unambiguous semantics for program execution. &lt;del&gt;Unsafe operations must be explicitly marked.&lt;/del&gt;
+&lt;add&gt;Unsafe operations and side effects (such as I/O, mutation, and non-determinism) must be explicitly marked and statically trackable in the type system.&lt;/add&gt;
+&lt;/requirement&gt;
+
+&lt;add&gt;
+&lt;requirement id="effect-visibility"&gt;
+Vyr must provide mechanisms for callers to observe, restrict, and safely intercept side effects originating from called functions. Effect signatures must serve as a formal, verifiable part of the API contract.
+&lt;/requirement&gt;
+&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h3>Change 2: Mandating Deterministic Resource Management</h3>
+<pre class="soft-wrap"><code class="language-xml">&lt;proposal-diff source="vyr-north-star.xml"
+base="https://raw.githubusercontent.com/vyr-lang/vyrspecs/main/vyr-north-star.xml"&gt;
+&lt;requirement id="performance"&gt;
+Vyr programs &lt;del&gt;should execute efficiently with minimal overhead.&lt;/del&gt;
+&lt;add&gt;must provide predictable latency and explicit control over memory allocations and execution overhead, supporting both generic application development and soft real-time constraints.&lt;/add&gt;
+&lt;/requirement&gt;
+
+&lt;add&gt;
+&lt;requirement id="resource-determinism"&gt;
+Vyr must enforce deterministic resource cleanup (e.g., memory, file descriptors, network sockets) at compile-time. The language must not rely on non-deterministic tracing garbage collection for the lifecycle management of safety-critical or latency-sensitive resources.
+&lt;/requirement&gt;
+&lt;/add&gt;
+&lt;/proposal-diff&gt;</code></pre>
+
+<h2>3. Rationale</h2>
+<p><strong>Effect Visibility:</strong> Local reasoning is the cornerstone of "strong correctness". If a function claims to compute a hash but secretly writes to a database or modifies global state, semantic clarity is compromised. Elevating effect tracking to a north-star requirement ensures that tooling, test harnesses, and the compiler can definitively prove the absence of unintended behaviors.</p>
+<p><strong>Resource Determinism:</strong> "Practical performance" means little if latency spikes unpredictably due to background tracing garbage collection. Systems-level tooling, high-performance web servers, and game engines require absolute control over memory and file handle lifecycles. By defining deterministic cleanup in the north star, we force the forthcoming memory model (M0004) to prioritize linear/affine types, region-based memory, or automatic reference counting over tracing GC.</p>
+
+<h2>4. Tradeoffs</h2>
+<ul>
+<li><strong>Increased Cognitive Load:</strong> Exposing effects and memory lifecycles forces the programmer to think about resource graphs and effect propagation. This creates a steeper learning curve compared to languages like Python or Go.</li>
+<li><strong>Verbose Signatures:</strong> Function signatures may become longer as they document both type bounds and effect bounds.</li>
+<li><strong>Compiler Complexity:</strong> Implementing scalable effect inference and static memory lifetimes will significantly increase the complexity of the Vyr compiler and could impact compile times.</li>
+</ul>
+
+<h2>5. Arguments For and Against</h2>
+<p><strong>Arguments For Adoption:</strong></p>
+<ul>
+<li>Differentiates Vyr from standard garbage-collected or implicitly-effectful languages.</li>
+<li>Enables powerful tooling: an IDE could highlight all code paths capable of initiating network requests.</li>
+<li>Eliminates entire categories of concurrency and resource-leak bugs at compile time.</li>
+</ul>
+
+<p><strong>Arguments Against Adoption:</strong></p>
+<ul>
+<li>Could push Vyr too far into academic territory, alienating mainstream enterprise developers who prefer "sufficiently fast" GC and implicit I/O.</li>
+<li>Effect systems often suffer from the "colored function" problem (similar to async/await), which could fragment the ecosystem.</li>
+</ul>
+
+<h2>6. Prior Art</h2>
+<ul>
+<li><strong>Koka &amp; Unison:</strong> Demonstrate the viability of algebraic effect handlers for isolating and intercepting side effects.</li>
+<li><strong>Rust:</strong> Proves that deterministic resource cleanup via an affine type system (the Borrow Checker) achieves massive industry success despite the learning curve.</li>
+<li><strong>Zig &amp; Odin:</strong> Demonstrate the value of explicit allocators and context variables, rejecting hidden runtime allocations.</li>
+</ul>
+
+<h2>7. Examples</h2>
+<p>If these north-star requirements are adopted, a hypothetical Vyr application might look like this:</p>
+<pre><code class="language-vyr">// 1. Pure function (guaranteed no effects, no heap allocation)
+fn calculate_hash(data: [u8]) -> u64 { ... }
+
+// 2. Explicit effect signature: requires File IO
+// The compiler statically verifies that this function cannot access the Network.
+fn write_log(msg: String) -> () / [FileIO] {
+let file = fs::open("app.log");
+file.write(msg);
+// file is deterministically closed here via static lifecycle rules
+}</code></pre>
+
+<h2>8. Open Questions</h2>
+<ul>
+<li><strong>Effect Granularity:</strong> Should the north star dictate how granular effects are (e.g., <code>[IO]</code> vs. <code>[FileSystemWrite, NetworkRead]</code>)?</li>
+<li><strong>Escape Hatches:</strong> Should the language allow an <code>[UnsafeImplicit]</code> effect block to ease prototyping, or must all development adhere strictly to the rules?</li>
+<li><strong>Memory Model Implication:</strong> Does "deterministic resource cleanup" implicitly mandate a Borrow Checker, or are there unexplored compile-time static analysis alternatives we should evaluate in M0004?</li>
+</ul>
+
+</main>
+</body>
+</html>
